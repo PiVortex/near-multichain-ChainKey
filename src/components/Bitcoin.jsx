@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 const BTC_NETWORK = 'testnet';
 const BTC = new Bitcoin('https://blockstream.info/testnet/api', BTC_NETWORK);
 
-export function BitcoinView({ props: { setStatus, MPC_CONTRACT } }) {
+export function BitcoinView({ props: { setStatus, NFT_CONTRACT } }) {
   const { wallet, signedAccountId } = useContext(NearContext);
 
   const [receiver, setReceiver] = useState("tb1q86ec0aszet5r3qt02j77f3dvxruk7tuqdlj0d5");
@@ -117,6 +117,6 @@ export function BitcoinView({ props: { setStatus, MPC_CONTRACT } }) {
 BitcoinView.propTypes = {
   props: PropTypes.shape({
     setStatus: PropTypes.func.isRequired,
-    MPC_CONTRACT: PropTypes.string.isRequired,
+    NFT_CONTRACT: PropTypes.string.isRequired,
   }).isRequired
 };

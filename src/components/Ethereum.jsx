@@ -8,8 +8,8 @@ import PropTypes from 'prop-types';
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
-  const { wallet, signedAccountId } = useContext(NearContext);
+export function EthereumView({ props: { setStatus, NFT_CONTRACT } }) {
+  const { wallet, signedAccountId, tokenId } = useContext(NearContext);
 
   const [receiver, setReceiver] = useState("0xe0f3B7e68151E9306727104973752A415c2bcbEb");
   const [amount, setAmount] = useState(0.01);
@@ -19,34 +19,38 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
   const [senderAddress, setSenderAddress] = useState("")
 
   const [derivation, setDerivation] = useState("ethereum-1");
-  const derivationPath = useDebounce(derivation, 1000);
+  const derivation_path = useDebounce(derivation, 1000);
 
   useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
   }, [derivation]);
 
   useEffect(() => {
+    if (tokenId == '') {
+      setSenderAddress('Select NFT')
+    } else {
     setEthAddress()
+    }
 
     async function setEthAddress() {
       setStatus('Querying your address and balance');
-      setSenderAddress(`Deriving address from path ${derivationPath}...`);
+      setSenderAddress(`Deriving address from path ${derivation_path}...`);
 
-      const { address } = await Eth.deriveAddress(signedAccountId, derivationPath);
+      const { address } = await Eth.deriveAddress(NFT_CONTRACT, derivation_path, tokenId);
       setSenderAddress(address);
 
       const balance = await Eth.getBalance(address);
       setStatus(`Your Ethereum address is: ${address}, balance: ${balance} ETH`);
     }
-  }, [signedAccountId, derivationPath]);
+  }, [signedAccountId, derivation_path, tokenId]);
 
   async function chainSignature() {
     setStatus('🏗️ Creating transaction');
     const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount);
 
-    setStatus(`🕒 Asking ${MPC_CONTRACT} to sign the transaction, this might take a while`);
+    setStatus(`🕒 Asking ${NFT_CONTRACT} to sign the transaction, this might take a while`);
     try {
-      const signedTransaction = await Eth.requestSignatureToMPC(wallet, MPC_CONTRACT, derivationPath, payload, transaction, senderAddress);
+      const signedTransaction = await Eth.requestSignatureToMPC(wallet, tokenId, NFT_CONTRACT, derivation_path, payload, transaction, senderAddress);
       setSignedTransaction(signedTransaction);
       setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
@@ -107,6 +111,7 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
         {step === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
         {step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
       </div>
+
     </>
   )
 }
@@ -114,6 +119,6 @@ export function EthereumView({ props: { setStatus, MPC_CONTRACT } }) {
 EthereumView.propTypes = {
   props: PropTypes.shape({
     setStatus: PropTypes.func.isRequired,
-    MPC_CONTRACT: PropTypes.string.isRequired,
+    NFT_CONTRACT: PropTypes.string.isRequired,
   }).isRequired
 };

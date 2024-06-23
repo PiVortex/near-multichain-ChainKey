@@ -3,37 +3,42 @@ import { NearContext } from './context';
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar"
 import { Wallet } from "./services/near-wallet";
+import { NFTView } from "./components/NFT";
 import { EthereumView } from "./components/Ethereum";
 import { BitcoinView } from "./components/Bitcoin";
 
 // CONSTANTS
-const MPC_CONTRACT = 'v2.multichain-mpc.testnet';
+const NFT_CONTRACT = 'v2.nft.kagi.testnet';
 
 // NEAR WALLET
-const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: MPC_CONTRACT });
+const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: NFT_CONTRACT });
+
 
 function App() {
   const [signedAccountId, setSignedAccountId] = useState('');
   const [status, setStatus] = useState("Please login to request a signature");
   const [chain, setChain] = useState('eth');
+  const [tokenId, setTokenId] = useState('');
 
   useEffect(() => { wallet.startUp(setSignedAccountId) }, []);
 
   return (
-    <NearContext.Provider value={{ wallet, signedAccountId }}>
+    <NearContext.Provider value={{ wallet, signedAccountId, tokenId, setTokenId }}>
       <Navbar />
       <div className="container">
         <h4> 🔗 NEAR Multi Chain </h4>
         <p className="small">
-          Safely control accounts on other chains through the NEAR MPC service. Learn more in the <a href="https://docs.near.org/abstraction/chain-signatures"> <b>documentation</b></a>.
+          Send transactions throuh NFT Chain Keys. Learn more in the <a href="https://docs.near.org/abstraction/chain-signatures"> <b>documentation</b></a>.
         </p>
 
         {signedAccountId &&
           <div style={{ width: '50%', minWidth: '400px' }}>
-
+            
             <div className="input-group input-group-sm mt-3 mb-3">
-              <input className="form-control text-center" type="text" value={`MPC Contract: ${MPC_CONTRACT}`} disabled />
+              <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${NFT_CONTRACT}`} disabled />
             </div>
+            
+            <NFTView props={{ setStatus, NFT_CONTRACT }} />
 
             <div className="input-group input-group-sm my-2 mb-4">
               <span className="text-primary input-group-text" id="chain">Chain</span>
@@ -43,8 +48,8 @@ function App() {
               </select>
             </div>
 
-            {chain === 'eth' && <EthereumView props={{ setStatus, MPC_CONTRACT }} />}
-            {chain === 'btc' && <BitcoinView props={{ setStatus, MPC_CONTRACT }} />}
+            {chain === 'eth' && <EthereumView props={{ setStatus, NFT_CONTRACT }} />}
+            {chain === 'btc' && <BitcoinView props={{ setStatus, NFT_CONTRACT }} />}
           </div>
         }
 

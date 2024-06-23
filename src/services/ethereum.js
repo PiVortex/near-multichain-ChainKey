@@ -11,8 +11,9 @@ export class Ethereum {
     this.queryGasPrice();
   }
 
-  async deriveAddress(accountId, derivation_path) {
-    const publicKey = await deriveChildPublicKey(najPublicKeyStrToUncompressedHexPoint(), accountId, derivation_path);
+  async deriveAddress(accountId, derivation_path, tokenId) {
+    const path = `${tokenId},${derivation_path}`;
+    const publicKey = await deriveChildPublicKey(najPublicKeyStrToUncompressedHexPoint(), accountId, path);
     const address = await uncompressedHexPointToEvmAddress(publicKey);
     return { publicKey: Buffer.from(publicKey, 'hex'), address };
   }
@@ -53,10 +54,15 @@ export class Ethereum {
     return { transaction, payload };
   }
 
-  async requestSignatureToMPC(wallet, contractId, path, ethPayload, transaction, sender) {
+  async requestSignatureToMPC(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
     // Ask the MPC to sign the payload
+
     const payload = Array.from(ethPayload.reverse());
-    const [big_r, big_s] = await wallet.callMethod({ contractId, method: 'sign', args: { payload, path, key_version: 0 }, gas: '250000000000000' });
+    // const [big_r, big_s] = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
+
+    const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
+
+    console.log(result)
 
     // reconstruct the signature
     const r = Buffer.from(big_r.substring(2), 'hex');
