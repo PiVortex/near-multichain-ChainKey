@@ -13,16 +13,24 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
 
   useEffect(() => {
     getNFTs()
-
-    async function getNFTs() {
-      try {
-        const NFT_list = await NFTInstance.get_NFTs(wallet, NFT_CONTRACT, signedAccountId);
-        setNFTs(NFT_list);
-      } catch (error) {
-        console.error("Failed to fetch NFTs:", error);
-      }
-    }
   }, []);
+
+  async function getNFTs() {
+    try {
+      const NFT_list = await NFTInstance.get_NFTs(wallet, NFT_CONTRACT, signedAccountId);
+      setNFTs(NFT_list);
+    } catch (error) {
+      console.error("Failed to fetch NFTs:", error);
+    }
+  }
+
+  async function mintNFT() {
+    await NFTInstance.add_storage_deposit(wallet, NFT_CONTRACT);
+    await NFTInstance.mint_NFT(wallet, NFT_CONTRACT);
+
+    getNFTs()
+  }
+
 
   return (
     <>
@@ -42,7 +50,9 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
             ))}
           </div>
           
-        <div> NFTId: {tokenId}</div>
+        <div> Selected NFT: {tokenId}</div>
+            
+        <button onClick={() => mintNFT()}> Mint new NFT</button>
     </>
 
   )

@@ -58,15 +58,11 @@ export class Ethereum {
     // Ask the MPC to sign the payload
 
     const payload = Array.from(ethPayload.reverse());
-    // const [big_r, big_s] = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
 
     const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
-
-    console.log(result)
-
-    // reconstruct the signature
-    const r = Buffer.from(big_r.substring(2), 'hex');
-    const s = Buffer.from(big_s, 'hex');
+    
+    const r = Buffer.from(result.substring(0, 64), 'hex');
+    const s = Buffer.from(result.substring(64, 128), 'hex');
 
     const candidates = [0n, 1n].map((v) => transaction.addSignature(v, r, s));
     const signature = candidates.find((c) => c.getSenderAddress().toString().toLowerCase() === sender.toLowerCase());
