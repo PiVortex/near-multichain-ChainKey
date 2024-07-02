@@ -9,11 +9,16 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
   const NFTInstance = new NFTChainKey();
 
   const [NFTs, setNFTs] = useState([]);
+  const [receiverId, setReceiverId] = useState('')
 
 
   useEffect(() => {
     getNFTs()
   }, []);
+
+  const handleChange = (event) => {
+    setReceiverId(event.target.value);
+  };
 
   async function getNFTs() {
     try {
@@ -25,34 +30,64 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
   }
 
   async function mintNFT() {
-    await NFTInstance.add_storage_deposit(wallet, NFT_CONTRACT);
-    await NFTInstance.mint_NFT(wallet, NFT_CONTRACT);
+    try {
+      await NFTInstance.add_storage_deposit(wallet, NFT_CONTRACT);
+    } catch (error) {
+      console.error("Failed to add storage_deposit:", error);
+    }
 
-    getNFTs()
+    try {
+      await NFTInstance.mint_NFT(wallet, NFT_CONTRACT);
+    } catch (error) {
+      console.error("Failed to mint NFT:", error)
+    }
+
+    getNFTs();
+  }
+
+  async function sendNFT() {
+    try {
+      await NFTInstance.send_NFT(wallet, NFT_CONTRACT, tokenId, receiverId);
+    } catch (error) {
+      console.error("Failed to send NFT:", error)
+    }
+
+    getNFTs();
+    setTokenId('');
+    setReceiverId('');
   }
 
 
   return (
     <>
 
-      <div> My NFTs: </div>
+      <div>
+        <p> My NFTs: </p>
 
-      <div className="NFT-list">
-            {NFTs.map(NFT => (
-              <div key={NFT}>
-                
-                {<button className="NFT-view" onClick={() => setTokenId(NFT)}><div>
-                  {NFT}
-                  </div>
-                </button> }
+        <div className="NFT-list">
+              {NFTs.map(NFT => (
+                <div key={NFT}>
+                  
+                  {<button className="NFT-view" onClick={() => setTokenId(NFT)}><div>
+                    {NFT}
+                    </div>
+                  </button> }
 
-              </div>
-            ))}
-          </div>
-          
-        <div> Selected NFT: {tokenId}</div>
-            
-        <button onClick={() => mintNFT()}> Mint new NFT</button>
+                </div>
+              ))}
+        </div>
+      </div>
+
+      <div>
+        <p> Selected NFT: {tokenId} </p>
+        <button onClick={() => mintNFT()}> Mint new NFT </button>
+      </div>    
+
+      <div>
+        <p> Send selected NFT </p>
+        <input type="text" value={receiverId} onChange={handleChange} />
+        <button onClick={() => sendNFT()}> Send NFT </button>
+      </div>
     </>
 
   )

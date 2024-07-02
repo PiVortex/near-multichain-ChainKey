@@ -1,11 +1,11 @@
 export class NFTChainKey {
     
-    async get_NFTs(wallet, contractId, accountId) {
+    async get_NFTs(wallet, contractId, account_id) {
 
         const result = await wallet.viewMethod({
             contractId,
             method: 'nft_tokens_for_owner',
-            args: { account_id: accountId},
+            args: { account_id },
         });
     
         const tokenIds = result.map(item => item.token_id);
@@ -24,6 +24,15 @@ export class NFTChainKey {
         await wallet.callMethod({
             contractId,
             method: 'mint',
+        });
+    }
+
+    async send_NFT(wallet, contractId, token_id, receiver_id) {
+        await wallet.callMethod({
+            contractId,
+            method: 'nft_transfer',
+            args: { token_id, receiver_id },
+            deposit: '1'
         });
     }
 
