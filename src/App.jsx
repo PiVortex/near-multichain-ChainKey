@@ -19,8 +19,28 @@ function App() {
   const [status, setStatus] = useState("Please login to request a signature");
   const [chain, setChain] = useState('eth');
   const [tokenId, setTokenId] = useState('');
+  const [transactionHash, setTransactionHash] = useState('');
 
   useEffect(() => { wallet.startUp(setSignedAccountId) }, []);
+
+  // useEffect(() => {
+  //   if (transactionHash) {
+  //     console.log('Updated transactionHash:', transactionHash);
+  //   }
+  // }, [transactionHash]);
+
+
+  useEffect(() => {
+    // Function to get transaction hash from URL
+    const getTransactionHashFromUrl = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = urlParams.get('transactionHashes');
+      console.log(hash);
+      setTransactionHash(hash);
+    };
+
+    getTransactionHashFromUrl();
+  }, []);
 
   return (
     <NearContext.Provider value={{ wallet, signedAccountId, tokenId, setTokenId }}>
@@ -48,7 +68,7 @@ function App() {
               </select>
             </div>
 
-            {chain === 'eth' && <EthereumView props={{ setStatus, NFT_CONTRACT }} />}
+            {chain === 'eth' && <EthereumView props={{ setStatus, NFT_CONTRACT, transactionHash }} />}
             {chain === 'btc' && <BitcoinView props={{ setStatus, NFT_CONTRACT }} />}
           </div>
         }

@@ -13,5 +13,5 @@ export const NearContext = createContext({
   wallet: undefined,
   signedAccountId: '',
   tokenId: '',
-  setTokenId: () => {}
+  setTokenId: () => {},
 });

@@ -60,6 +60,26 @@ export class Ethereum {
     const payload = Array.from(ethPayload.reverse());
 
     const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
+    const r = Buffer.from(result.substring(0, 64), 'hex');
+    const s = Buffer.from(result.substring(64, 128), 'hex');
+
+    const candidates = [0n, 1n].map((v) => transaction.addSignature(v, r, s));
+    const signature = candidates.find((c) => c.getSenderAddress().toString().toLowerCase() === sender.toLowerCase());
+
+    if (!signature) {
+      throw new Error("Signature is not valid");
+    }
+
+    if (signature.getValidationErrors().length > 0) throw new Error("Transaction validation errors");
+    if (!signature.verifySignature()) throw new Error("Signature is not valid");
+
+    console.log(signature)
+
+    return signature;
+  }
+
+  async requestSignatureToMPCCallback(wallet, transaction, transactionHash, sender) {
+    const result = await wallet.getTransactionResult(transactionHash)
     
     const r = Buffer.from(result.substring(0, 64), 'hex');
     const s = Buffer.from(result.substring(64, 128), 'hex');
@@ -74,8 +94,11 @@ export class Ethereum {
     if (signature.getValidationErrors().length > 0) throw new Error("Transaction validation errors");
     if (!signature.verifySignature()) throw new Error("Signature is not valid");
 
+    console.log("good5")
+
     return signature;
   }
+
 
   // This code can be used to actually relay the transaction to the Ethereum network
   async relayTransaction(signedTransaction) {

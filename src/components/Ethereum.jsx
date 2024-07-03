@@ -8,18 +8,55 @@ import PropTypes from 'prop-types';
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, NFT_CONTRACT } }) {
-  const { wallet, signedAccountId, tokenId } = useContext(NearContext);
+export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash } }) {
+  const { wallet, signedAccountId, tokenId, setTokenId } = useContext(NearContext);
 
   const [receiver, setReceiver] = useState("0xe0f3B7e68151E9306727104973752A415c2bcbEb");
   const [amount, setAmount] = useState(0.01);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("request");
   const [signedTransaction, setSignedTransaction] = useState(null);
-  const [senderAddress, setSenderAddress] = useState("")
+  const [senderAddress, setSenderAddress] = useState('')
 
   const [derivation, setDerivation] = useState("ethereum-1");
   const derivation_path = useDebounce(derivation, 1000);
+
+  useEffect(() => {
+    // if web wallet do this
+    // handleCallback();
+  }, [transactionHash]);
+
+  async function handleCallback() {
+    if (transactionHash != null) {
+
+      // const transactionArgs = await wallet.getTransactionArgs(transactionHash);
+      // setDerivation(transactionArgs.path);
+      // setTokenId(transactionArgs.token_id);
+
+      // const { address } = await Eth.deriveAddress(NFT_CONTRACT, transactionArgs.path, transactionArgs.token_id);
+      // setSenderAddress(address);
+
+      // const { transaction } = await Eth.createPayload(address, receiver, "0.0001");
+
+
+      const unparsedtransaction = sessionStorage.getItem('transaction')
+      const parsed = JSON.parse(unparsedtransaction)
+      // const common = new Common({ chain: 11155111 })
+      // const transaction = FeeMarketEIP1559Transaction.fromTxData(parsed, { common })
+      // console.log(transaction)
+      const signedTransaction = await Eth.requestSignatureToMPCCallback(wallet, transaction, transactionHash, senderAddress);
+      setSignedTransaction(signedTransaction);
+
+      try {
+
+        setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
+        setStep('relay');
+      } catch (e) {
+        setStatus(`❌ Error: ${e.message}`);
+        setLoading(false);
+      }
+    }
+  }
 
   useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
@@ -31,7 +68,6 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT } }) {
     } else {
     setEthAddress()
     }
-
     async function setEthAddress() {
       setStatus('Querying your address and balance');
       setSenderAddress(`Deriving address from path ${derivation_path}...`);
@@ -48,6 +84,8 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT } }) {
     setStatus('🏗️ Creating transaction');
     const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount);
 
+    sessionStorage.setItem('transaction', JSON.stringify(transaction))
+
     setStatus(`🕒 Asking ${NFT_CONTRACT} to sign the transaction, this might take a while`);
     try {
       const signedTransaction = await Eth.requestSignatureToMPC(wallet, tokenId, NFT_CONTRACT, derivation_path, payload, transaction, senderAddress);
@@ -55,6 +93,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT } }) {
       setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
     } catch (e) {
+      console.log(e)
       setStatus(`❌ Error: ${e.message}`);
       setLoading(false);
     }
