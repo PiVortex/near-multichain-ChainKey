@@ -53,7 +53,7 @@ export class Ethereum {
     sessionStorage.setItem('maxFeePerGas', transactionData.maxFeePerGas)
     sessionStorage.setItem('maxPriorityFeePerGas', transactionData.maxPriorityFeePerGas)
     sessionStorage.setItem('to', transactionData.to)
-    sessionStorage.setItem('value', transactionData.value)
+    sessionStorage.setItem('amount', amount)
     
     // Return the message hash
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
@@ -93,7 +93,7 @@ export class Ethereum {
       maxFeePerGas: BigInt(sessionStorage.getItem('maxFeePerGas')),
       maxPriorityFeePerGas: BigInt(sessionStorage.getItem('maxPriorityFeePerGas')),
       to: sessionStorage.getItem('to'),
-      value: BigInt(sessionStorage.getItem('value')),
+      value: BigInt(this.web3.utils.toWei(sessionStorage.getItem('amount'), "ether")),
       chain: this.chain_id,
     };
 

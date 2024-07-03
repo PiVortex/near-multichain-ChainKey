@@ -145,10 +145,10 @@ export class Wallet {
     const { network } = walletSelector.options;
     const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
 
-    // Retrieve transaction result from the network
+    // Retrieve transaction args from the network
     const transaction = await provider.txStatus(txhash, 'unnused');
     if (transaction.transaction && transaction.transaction.actions.length > 0) {
-      const action = transaction.transaction.actions[0]; // Assuming a single action for simplicity
+      const action = transaction.transaction.actions[0];
       if (action.FunctionCall) {
         const args = action.FunctionCall.args;
         const decodedArgs = Buffer.from(args, 'base64').toString();

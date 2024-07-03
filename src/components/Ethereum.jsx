@@ -22,7 +22,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
   const derivation_path = useDebounce(derivation, 1000);
 
   useEffect(() => {
-    // if web wallet do this
+    // Only called if using web wallet
     if (transactionHash != null) {
       resetParams();
       handleCallback();
@@ -33,6 +33,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
     const args = await wallet.getTransactionArgs(transactionHash)
     setTokenId(args.token_id)
     setDerivation(args.path)
+    setAmount(sessionStorage.getItem('amount'))
   }
 
   async function handleCallback() {
