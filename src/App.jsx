@@ -23,19 +23,11 @@ function App() {
 
   useEffect(() => { wallet.startUp(setSignedAccountId) }, []);
 
-  // useEffect(() => {
-  //   if (transactionHash) {
-  //     console.log('Updated transactionHash:', transactionHash);
-  //   }
-  // }, [transactionHash]);
-
-
   useEffect(() => {
     // Function to get transaction hash from URL
     const getTransactionHashFromUrl = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const hash = urlParams.get('transactionHashes');
-      console.log(hash);
       setTransactionHash(hash);
     };
 

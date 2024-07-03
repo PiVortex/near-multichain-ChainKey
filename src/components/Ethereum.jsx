@@ -23,32 +23,22 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
 
   useEffect(() => {
     // if web wallet do this
-    // handleCallback();
+    if (transactionHash != null) {
+      resetParams();
+      handleCallback();
+    }
   }, [transactionHash]);
 
+  async function resetParams() {
+    const args = await wallet.getTransactionArgs(transactionHash)
+    setTokenId(args.token_id)
+    setDerivation(args.path)
+  }
+
   async function handleCallback() {
-    if (transactionHash != null) {
-
-      // const transactionArgs = await wallet.getTransactionArgs(transactionHash);
-      // setDerivation(transactionArgs.path);
-      // setTokenId(transactionArgs.token_id);
-
-      // const { address } = await Eth.deriveAddress(NFT_CONTRACT, transactionArgs.path, transactionArgs.token_id);
-      // setSenderAddress(address);
-
-      // const { transaction } = await Eth.createPayload(address, receiver, "0.0001");
-
-
-      const unparsedtransaction = sessionStorage.getItem('transaction')
-      const parsed = JSON.parse(unparsedtransaction)
-      // const common = new Common({ chain: 11155111 })
-      // const transaction = FeeMarketEIP1559Transaction.fromTxData(parsed, { common })
-      // console.log(transaction)
-      const signedTransaction = await Eth.requestSignatureToMPCCallback(wallet, transaction, transactionHash, senderAddress);
-      setSignedTransaction(signedTransaction);
-
       try {
-
+        const signedTransaction = await Eth.requestSignatureToMPCCallback(wallet, transactionHash);
+        setSignedTransaction(signedTransaction);
         setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
         setStep('relay');
       } catch (e) {
@@ -56,7 +46,6 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
         setLoading(false);
       }
     }
-  }
 
   useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
@@ -66,7 +55,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
     if (tokenId == '') {
       setSenderAddress('Select NFT')
     } else {
-    setEthAddress()
+      setEthAddress()
     }
     async function setEthAddress() {
       setStatus('Querying your address and balance');
@@ -83,8 +72,6 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
   async function chainSignature() {
     setStatus('🏗️ Creating transaction');
     const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount);
-
-    sessionStorage.setItem('transaction', JSON.stringify(transaction))
 
     setStatus(`🕒 Asking ${NFT_CONTRACT} to sign the transaction, this might take a while`);
     try {

@@ -48,9 +48,17 @@ export class Ethereum {
       chain: this.chain_id,
     };
 
+    sessionStorage.setItem('sender', sender)
+    sessionStorage.setItem('nonce', nonce)
+    sessionStorage.setItem('maxFeePerGas', transactionData.maxFeePerGas)
+    sessionStorage.setItem('maxPriorityFeePerGas', transactionData.maxPriorityFeePerGas)
+    sessionStorage.setItem('to', transactionData.to)
+    sessionStorage.setItem('value', transactionData.value)
+    
     // Return the message hash
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
     const payload = transaction.getHashedMessageToSign();
+    console.log(transaction)
     return { transaction, payload };
   }
 
@@ -73,14 +81,27 @@ export class Ethereum {
     if (signature.getValidationErrors().length > 0) throw new Error("Transaction validation errors");
     if (!signature.verifySignature()) throw new Error("Signature is not valid");
 
-    console.log(signature)
-
     return signature;
   }
 
-  async requestSignatureToMPCCallback(wallet, transaction, transactionHash, sender) {
+  async requestSignatureToMPCCallback(wallet, transactionHash) {
+    // Pull data from sessionStorage and reconstruct transaction
+    const sender = sessionStorage.getItem('sender')
+    const transactionData = {
+      nonce: BigInt(sessionStorage.getItem('nonce')),
+      gasLimit: 21000,
+      maxFeePerGas: BigInt(sessionStorage.getItem('maxFeePerGas')),
+      maxPriorityFeePerGas: BigInt(sessionStorage.getItem('maxPriorityFeePerGas')),
+      to: sessionStorage.getItem('to'),
+      value: BigInt(sessionStorage.getItem('value')),
+      chain: this.chain_id,
+    };
+
+    const common = new Common({ chain: this.chain_id });
+    const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
+
     const result = await wallet.getTransactionResult(transactionHash)
-    
+
     const r = Buffer.from(result.substring(0, 64), 'hex');
     const s = Buffer.from(result.substring(64, 128), 'hex');
 
@@ -94,11 +115,8 @@ export class Ethereum {
     if (signature.getValidationErrors().length > 0) throw new Error("Transaction validation errors");
     if (!signature.verifySignature()) throw new Error("Signature is not valid");
 
-    console.log("good5")
-
     return signature;
   }
-
 
   // This code can be used to actually relay the transaction to the Ethereum network
   async relayTransaction(signedTransaction) {
