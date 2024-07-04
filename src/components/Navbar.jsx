@@ -8,7 +8,10 @@ const Navbar = () => {
 
   const signIn = () => { wallet.signIn() }
 
-  const signOut = () => { wallet.signOut() }
+  const signOut = () => { 
+    wallet.signOut();
+    window.history.pushState({}, '', window.location.origin);
+  }
 
   return (<nav className="navbar">
     <div className="container-fluid navbar-expand-lg">

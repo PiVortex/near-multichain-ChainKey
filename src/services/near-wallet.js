@@ -147,7 +147,7 @@ export class Wallet {
 
     // Retrieve transaction args from the network
     const transaction = await provider.txStatus(txhash, 'unnused');
-    if (transaction.transaction && transaction.transaction.actions.length > 0) {
+    if (transaction.transaction) {
       const action = transaction.transaction.actions[0];
       if (action.FunctionCall) {
         const args = action.FunctionCall.args;

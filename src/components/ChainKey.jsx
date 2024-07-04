@@ -9,11 +9,11 @@ export function ChainKeyView({ props: { CHAIN_KEY_CONTRACT } }) {
   const CK = new ChainKey();
 
   const [chainKeys, setChainKeys] = useState([]);
-  const [receiverId, setReceiverId] = useState('')
+  const [receiverId, setReceiverId] = useState('');
 
 
   useEffect(() => {
-    getChainKeys()
+    getChainKeys();
   }, []);
 
   const handleChange = (event) => {
@@ -41,7 +41,7 @@ export function ChainKeyView({ props: { CHAIN_KEY_CONTRACT } }) {
     try {
       await CK.mint_chain_key(wallet, CHAIN_KEY_CONTRACT);
     } catch (error) {
-      console.error("Failed to mint Chain Key:", error)
+      console.error("Failed to mint Chain Key:", error);
     }
 
     getChainKeys();
@@ -51,7 +51,7 @@ export function ChainKeyView({ props: { CHAIN_KEY_CONTRACT } }) {
     try {
       await CK.send_chain_key(wallet, CHAIN_KEY_CONTRACT, tokenId, receiverId);
     } catch (error) {
-      console.error("Failed to send Chain Key:", error)
+      console.error("Failed to send Chain Key:", error);
     }
 
     getChainKeys();

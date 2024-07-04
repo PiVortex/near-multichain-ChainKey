@@ -2,7 +2,7 @@ import { Web3 } from "web3"
 import { bytesToHex } from '@ethereumjs/util';
 import { FeeMarketEIP1559Transaction } from '@ethereumjs/tx';
 import { deriveChildPublicKey, najPublicKeyStrToUncompressedHexPoint, uncompressedHexPointToEvmAddress } from '../services/kdf';
-import { Common } from '@ethereumjs/common'
+import { Common } from '@ethereumjs/common';
 
 export class Ethereum {
   constructor(chain_rpc, chain_id) {
@@ -25,7 +25,7 @@ export class Ethereum {
   }
 
   async getBalance(accountId) {
-    const balance = await this.web3.eth.getBalance(accountId)
+    const balance = await this.web3.eth.getBalance(accountId);
     const ONE_ETH = 1000000000000000000n;
     return Number(balance * 100n / ONE_ETH) / 100;
   }
@@ -49,12 +49,12 @@ export class Ethereum {
     };
 
     // Store data needed if using web wallet 
-    sessionStorage.setItem('sender', sender)
-    sessionStorage.setItem('nonce', nonce)
-    sessionStorage.setItem('maxFeePerGas', transactionData.maxFeePerGas)
-    sessionStorage.setItem('maxPriorityFeePerGas', transactionData.maxPriorityFeePerGas)
-    sessionStorage.setItem('to', transactionData.to)
-    sessionStorage.setItem('amount', amount)
+    sessionStorage.setItem('sender', sender);
+    sessionStorage.setItem('nonce', nonce);
+    sessionStorage.setItem('maxFeePerGas', maxFeePerGas);
+    sessionStorage.setItem('maxPriorityFeePerGas', maxPriorityFeePerGas);
+    sessionStorage.setItem('to', receiver);
+    sessionStorage.setItem('amount', amount);
     
     // Return the message hash
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
@@ -66,7 +66,7 @@ export class Ethereum {
     // Ask the NFT Chain Key contract to sign the payload
     const payload = Array.from(ethPayload.reverse());
 
-    sessionStorage.setItem('chain', "ETH")
+    sessionStorage.setItem('chain', "ETH");
 
     const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
     return await this.reconstructSignature(result, transaction, sender);
@@ -74,7 +74,7 @@ export class Ethereum {
 
   async requestSignatureToChainKeyCallback(wallet, transactionHash) {
     // Pull data from sessionStorage and reconstruct transaction
-    const sender = sessionStorage.getItem('sender')
+    const sender = sessionStorage.getItem('sender');
     const transactionData = {
       nonce: BigInt(sessionStorage.getItem('nonce')),
       gasLimit: 21000,
@@ -88,7 +88,7 @@ export class Ethereum {
     const common = new Common({ chain: this.chain_id });
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
 
-    const result = await wallet.getTransactionResult(transactionHash)
+    const result = await wallet.getTransactionResult(transactionHash);
     return await this.reconstructSignature(result, transaction, sender);
   }
 
@@ -114,6 +114,6 @@ export class Ethereum {
   async relayTransaction(signedTransaction) {
     const serializedTx = bytesToHex(signedTransaction.serialize());
     const relayed = await this.web3.eth.sendSignedTransaction(serializedTx);
-    return relayed.transactionHash
+    return relayed.transactionHash;
   }
 }

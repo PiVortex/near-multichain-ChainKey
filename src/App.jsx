@@ -26,11 +26,11 @@ function App() {
 
   useEffect(() => {
     if (signedAccountId && tokenId == '') {
-      setStatus("Please select a Chain Key")
+      setStatus("Please select a Chain Key");
     } else if (! signedAccountId) {
       setStatus("Please login to request a signature");
     }
-  }, [signedAccountId])
+  }, [signedAccountId]);
   
 
   useEffect(() => {
@@ -50,7 +50,7 @@ function App() {
       <div className="container">
         <h4> 🔗 NEAR Multi Chain </h4>
         <p className="small">
-          Send transactions through NFT Chain Keys. Learn more in the <a href="https://docs.near.org/abstraction/chain-signatures"> <b>documentation</b></a>.
+          Send transactions through NFT Chain Keys. Learn more in the <a href="https://docs.near.org/build/chain-abstraction/nft-chain-keys"> <b>documentation</b></a>.
         </p>
 
         {signedAccountId &&

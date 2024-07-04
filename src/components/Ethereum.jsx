@@ -16,7 +16,7 @@ export function EthereumView({ props: { setStatus, CHAIN_KEY_CONTRACT, transacti
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("request");
   const [signedTransaction, setSignedTransaction] = useState(null);
-  const [senderAddress, setSenderAddress] = useState('')
+  const [senderAddress, setSenderAddress] = useState('');
 
   const [derivation, setDerivation] = useState("ethereum-1");
   const derivation_path = useDebounce(derivation, 1000);
@@ -31,10 +31,14 @@ export function EthereumView({ props: { setStatus, CHAIN_KEY_CONTRACT, transacti
 
   // Reset params to before asking for signature if using web wallet
   async function resetParams() {
-    const args = await wallet.getTransactionArgs(transactionHash)
-    setTokenId(args.token_id)
-    setDerivation(args.path)
-    setAmount(sessionStorage.getItem('amount'))
+    try {
+    const args = await wallet.getTransactionArgs(transactionHash);
+    setTokenId(args.token_id);
+    setDerivation(args.path);
+    setAmount(sessionStorage.getItem('amount'));
+    } catch (e) {
+      setStatus(`❌ Error: ${e.message}`);
+    }
   }
 
   // Handles the rest of the signature method if using web wallet
@@ -58,9 +62,9 @@ export function EthereumView({ props: { setStatus, CHAIN_KEY_CONTRACT, transacti
 
   useEffect(() => {
     if (tokenId == '') {
-      setSenderAddress('Select Chain Key')
+      setSenderAddress('Select Chain Key');
     } else {
-      setEthAddress()
+      setEthAddress();
     }
     async function setEthAddress() {
       setStatus('Querying your address and balance');
@@ -106,6 +110,7 @@ export function EthereumView({ props: { setStatus, CHAIN_KEY_CONTRACT, transacti
 
     setStep('request');
     setLoading(false);
+    window.history.pushState({}, '', window.location.origin);
   }
 
   const UIChainSignature = async () => {
