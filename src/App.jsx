@@ -3,16 +3,15 @@ import { NearContext } from './context';
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar"
 import { Wallet } from "./services/near-wallet";
-import { NFTView } from "./components/NFT";
+import { ChainKeyView } from "./components/ChainKey";
 import { EthereumView } from "./components/Ethereum";
 import { BitcoinView } from "./components/Bitcoin";
 
 // CONSTANTS
-const NFT_CONTRACT = 'v2.nft.kagi.testnet';
+const CHAIN_KEY_CONTRACT = 'v2.nft.kagi.testnet';
 
 // NEAR WALLET
-const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: NFT_CONTRACT });
-
+const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: CHAIN_KEY_CONTRACT });
 
 function App() {
   const [signedAccountId, setSignedAccountId] = useState('');
@@ -21,7 +20,18 @@ function App() {
   const [tokenId, setTokenId] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
 
-  useEffect(() => { wallet.startUp(setSignedAccountId) }, []);
+  useEffect(() => { 
+    wallet.startUp(setSignedAccountId) 
+  }, []);
+
+  useEffect(() => {
+    if (signedAccountId && tokenId == '') {
+      setStatus("Please select a Chain Key")
+    } else if (! signedAccountId) {
+      setStatus("Please login to request a signature");
+    }
+  }, [signedAccountId])
+  
 
   useEffect(() => {
     // Get transaction hash from when using web wallet
@@ -40,17 +50,17 @@ function App() {
       <div className="container">
         <h4> 🔗 NEAR Multi Chain </h4>
         <p className="small">
-          Send transactions throuh NFT Chain Keys. Learn more in the <a href="https://docs.near.org/abstraction/chain-signatures"> <b>documentation</b></a>.
+          Send transactions through NFT Chain Keys. Learn more in the <a href="https://docs.near.org/abstraction/chain-signatures"> <b>documentation</b></a>.
         </p>
 
         {signedAccountId &&
           <div style={{ width: '50%', minWidth: '400px' }}>
             
             <div className="input-group input-group-sm mt-3 mb-3">
-              <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${NFT_CONTRACT}`} disabled />
+              <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${CHAIN_KEY_CONTRACT}`} disabled />
             </div>
             
-            <NFTView props={{ setStatus, NFT_CONTRACT }} />
+            <ChainKeyView props={{ CHAIN_KEY_CONTRACT }} />
 
             <div className="input-group input-group-sm my-2 mb-4">
               <span className="text-primary input-group-text" id="chain">Chain</span>
@@ -60,8 +70,8 @@ function App() {
               </select>
             </div>
 
-            {chain === 'eth' && <EthereumView props={{ setStatus, NFT_CONTRACT, transactionHash }} />}
-            {chain === 'btc' && <BitcoinView props={{ setStatus, NFT_CONTRACT }} />}
+            {chain === 'eth' && <EthereumView props={{ setStatus, CHAIN_KEY_CONTRACT, transactionHash }} />}
+            {chain === 'btc' && <BitcoinView props={{ setStatus, CHAIN_KEY_CONTRACT }} />}
           </div>
         }
 

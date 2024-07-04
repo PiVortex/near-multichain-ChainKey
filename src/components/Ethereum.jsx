@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 const Sepolia = 11155111;
 const Eth = new Ethereum('https://rpc2.sepolia.org', Sepolia);
 
-export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash } }) {
+export function EthereumView({ props: { setStatus, CHAIN_KEY_CONTRACT, transactionHash } }) {
   const { wallet, signedAccountId, tokenId, setTokenId } = useContext(NearContext);
 
   const [receiver, setReceiver] = useState("0xe0f3B7e68151E9306727104973752A415c2bcbEb");
@@ -58,7 +58,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
 
   useEffect(() => {
     if (tokenId == '') {
-      setSenderAddress('Select NFT')
+      setSenderAddress('Select Chain Key')
     } else {
       setEthAddress()
     }
@@ -66,7 +66,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
       setStatus('Querying your address and balance');
       setSenderAddress(`Deriving address from path ${derivation_path}...`);
 
-      const { address } = await Eth.deriveAddress(NFT_CONTRACT, derivation_path, tokenId);
+      const { address } = await Eth.deriveAddress(CHAIN_KEY_CONTRACT, derivation_path, tokenId);
       setSenderAddress(address);
 
       const balance = await Eth.getBalance(address);
@@ -78,9 +78,9 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
     setStatus('🏗️ Creating transaction');
     const { transaction, payload } = await Eth.createPayload(senderAddress, receiver, amount);
 
-    setStatus(`🕒 Asking ${NFT_CONTRACT} to sign the transaction, this might take a while`);
+    setStatus(`🕒 Asking ${CHAIN_KEY_CONTRACT} to sign the transaction, this might take a while`);
     try {
-      const signedTransaction = await Eth.requestSignatureToChainKey(wallet, tokenId, NFT_CONTRACT, derivation_path, payload, transaction, senderAddress);
+      const signedTransaction = await Eth.requestSignatureToChainKey(wallet, tokenId, CHAIN_KEY_CONTRACT, derivation_path, payload, transaction, senderAddress);
       setSignedTransaction(signedTransaction);
       setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
@@ -149,6 +149,6 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
 EthereumView.propTypes = {
   props: PropTypes.shape({
     setStatus: PropTypes.func.isRequired,
-    NFT_CONTRACT: PropTypes.string.isRequired,
+    CHAIN_KEY_CONTRACT: PropTypes.string.isRequired,
   }).isRequired
 };
