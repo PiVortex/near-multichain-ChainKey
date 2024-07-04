@@ -29,13 +29,15 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
     }
   }
 
-  async function mintNFT() {
+  async function payStorage() {
     try {
       await NFTInstance.add_storage_deposit(wallet, NFT_CONTRACT);
     } catch (error) {
       console.error("Failed to add storage_deposit:", error);
     }
+  }
 
+  async function mintNFT() {
     try {
       await NFTInstance.mint_NFT(wallet, NFT_CONTRACT);
     } catch (error) {
@@ -76,10 +78,11 @@ export function NFTView({ props: { setStatus, NFT_CONTRACT } }) {
                 </div>
               ))}
         </div>
+        <p> Selected NFT: {tokenId} </p>
       </div>
 
       <div>
-        <p> Selected NFT: {tokenId} </p>
+        <button onClick={() => payStorage()}> Pay NFT storage deposit </button>
         <button onClick={() => mintNFT()}> Mint new NFT </button>
       </div>    
 

@@ -24,7 +24,7 @@ function App() {
   useEffect(() => { wallet.startUp(setSignedAccountId) }, []);
 
   useEffect(() => {
-    // Function to get transaction hash from URL
+    // Get transaction hash from when using web wallet
     const getTransactionHashFromUrl = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const hash = urlParams.get('transactionHashes');

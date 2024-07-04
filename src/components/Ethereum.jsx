@@ -23,12 +23,13 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
 
   useEffect(() => {
     // Only called if using web wallet
-    if (transactionHash != null) {
+    if (transactionHash != null && sessionStorage.getItem('chain') == "ETH") {
       resetParams();
       handleCallback();
     }
   }, [transactionHash]);
 
+  // Reset params to before asking for signature if using web wallet
   async function resetParams() {
     const args = await wallet.getTransactionArgs(transactionHash)
     setTokenId(args.token_id)
@@ -36,12 +37,15 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
     setAmount(sessionStorage.getItem('amount'))
   }
 
+  // Handles the rest of the signature method if using web wallet
   async function handleCallback() {
       try {
-        const signedTransaction = await Eth.requestSignatureToMPCCallback(wallet, transactionHash);
+        setLoading(true);
+        const signedTransaction = await Eth.requestSignatureToChainKeyCallback(wallet, transactionHash);
         setSignedTransaction(signedTransaction);
         setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
         setStep('relay');
+        setLoading(false);
       } catch (e) {
         setStatus(`❌ Error: ${e.message}`);
         setLoading(false);
@@ -76,12 +80,11 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
 
     setStatus(`🕒 Asking ${NFT_CONTRACT} to sign the transaction, this might take a while`);
     try {
-      const signedTransaction = await Eth.requestSignatureToMPC(wallet, tokenId, NFT_CONTRACT, derivation_path, payload, transaction, senderAddress);
+      const signedTransaction = await Eth.requestSignatureToChainKey(wallet, tokenId, NFT_CONTRACT, derivation_path, payload, transaction, senderAddress);
       setSignedTransaction(signedTransaction);
       setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
       setStep('relay');
     } catch (e) {
-      console.log(e)
       setStatus(`❌ Error: ${e.message}`);
       setLoading(false);
     }

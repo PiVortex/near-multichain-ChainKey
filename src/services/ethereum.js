@@ -48,6 +48,7 @@ export class Ethereum {
       chain: this.chain_id,
     };
 
+    // Store data needed if using web wallet 
     sessionStorage.setItem('sender', sender)
     sessionStorage.setItem('nonce', nonce)
     sessionStorage.setItem('maxFeePerGas', transactionData.maxFeePerGas)
@@ -58,33 +59,20 @@ export class Ethereum {
     // Return the message hash
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
     const payload = transaction.getHashedMessageToSign();
-    console.log(transaction)
     return { transaction, payload };
   }
 
-  async requestSignatureToMPC(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
-    // Ask the MPC to sign the payload
-
+  async requestSignatureToChainKey(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
+    // Ask the NFT Chain Key contract to sign the payload
     const payload = Array.from(ethPayload.reverse());
 
+    sessionStorage.setItem('chain', "ETH")
+
     const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
-    const r = Buffer.from(result.substring(0, 64), 'hex');
-    const s = Buffer.from(result.substring(64, 128), 'hex');
-
-    const candidates = [0n, 1n].map((v) => transaction.addSignature(v, r, s));
-    const signature = candidates.find((c) => c.getSenderAddress().toString().toLowerCase() === sender.toLowerCase());
-
-    if (!signature) {
-      throw new Error("Signature is not valid");
-    }
-
-    if (signature.getValidationErrors().length > 0) throw new Error("Transaction validation errors");
-    if (!signature.verifySignature()) throw new Error("Signature is not valid");
-
-    return signature;
+    return await this.reconstructSignature(result, transaction, sender);
   }
 
-  async requestSignatureToMPCCallback(wallet, transactionHash) {
+  async requestSignatureToChainKeyCallback(wallet, transactionHash) {
     // Pull data from sessionStorage and reconstruct transaction
     const sender = sessionStorage.getItem('sender')
     const transactionData = {
@@ -101,7 +89,11 @@ export class Ethereum {
     const transaction = FeeMarketEIP1559Transaction.fromTxData(transactionData, { common });
 
     const result = await wallet.getTransactionResult(transactionHash)
+    return await this.reconstructSignature(result, transaction, sender);
+  }
 
+  async reconstructSignature(result, transaction, sender) {
+    // Reconstruct the signature
     const r = Buffer.from(result.substring(0, 64), 'hex');
     const s = Buffer.from(result.substring(64, 128), 'hex');
 
