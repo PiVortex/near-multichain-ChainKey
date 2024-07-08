@@ -62,7 +62,7 @@ export class Ethereum {
     return { transaction, payload };
   }
 
-  async requestSignatureToChainKey(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
+  async requestSignatureFromNFT(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
     // Ask the NFT Chain Key contract to sign the payload
     const payload = Array.from(ethPayload.reverse());
 
@@ -72,7 +72,7 @@ export class Ethereum {
     return await this.reconstructSignature(result, transaction, sender);
   }
 
-  async requestSignatureToChainKeyCallback(wallet, transactionHash) {
+  async requestSignatureFromNFTCallback(wallet, transactionHash) {
     // Pull data from sessionStorage and reconstruct transaction
     const sender = sessionStorage.getItem('sender');
     const transactionData = {

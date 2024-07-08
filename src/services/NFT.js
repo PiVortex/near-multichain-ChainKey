@@ -1,6 +1,6 @@
-export class ChainKey {
+export class NFTClass {
     
-    async get_chain_keys(wallet, contractId, account_id) {
+    async get_NFTs(wallet, contractId, account_id) {
 
         const result = await wallet.viewMethod({
             contractId,
@@ -20,14 +20,14 @@ export class ChainKey {
         });
     }
 
-    async mint_chain_key(wallet, contractId) {
+    async mint_NFT(wallet, contractId) {
         await wallet.callMethod({
             contractId,
             method: 'mint',
         });
     }
 
-    async send_chain_key(wallet, contractId, token_id, receiver_id) {
+    async send_NFT(wallet, contractId, token_id, receiver_id) {
         await wallet.callMethod({
             contractId,
             method: 'nft_transfer',

@@ -3,15 +3,15 @@ import { NearContext } from './context';
 import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar"
 import { Wallet } from "./services/near-wallet";
-import { ChainKeyView } from "./components/ChainKey";
+import { NFTView } from "./components/NFT";
 import { EthereumView } from "./components/Ethereum";
 import { BitcoinView } from "./components/Bitcoin";
 
 // CONSTANTS
-const CHAIN_KEY_CONTRACT = 'v2.nft.kagi.testnet';
+const NFT_CONTRACT = 'v2.nft.kagi.testnet';
 
 // NEAR WALLET
-const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: CHAIN_KEY_CONTRACT });
+const wallet = new Wallet({ network: 'testnet', createAccessKeyFor: NFT_CONTRACT });
 
 function App() {
   const [signedAccountId, setSignedAccountId] = useState('');
@@ -26,7 +26,7 @@ function App() {
 
   useEffect(() => {
     if (signedAccountId && tokenId == '') {
-      setStatus("Please select a Chain Key");
+      setStatus("Please select a NFT");
     } else if (! signedAccountId) {
       setStatus("Please login to request a signature");
     }
@@ -57,10 +57,10 @@ function App() {
           <div style={{ width: '50%', minWidth: '400px' }}>
             
             <div className="input-group input-group-sm mt-3 mb-3">
-              <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${CHAIN_KEY_CONTRACT}`} disabled />
+              <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${NFT_CONTRACT}`} disabled />
             </div>
             
-            <ChainKeyView props={{ CHAIN_KEY_CONTRACT }} />
+            <NFTView props={{ NFT_CONTRACT }} />
 
             <div className="input-group input-group-sm my-2 mb-4">
               <span className="text-primary input-group-text" id="chain">Chain</span>
@@ -70,8 +70,8 @@ function App() {
               </select>
             </div>
 
-            {chain === 'eth' && <EthereumView props={{ setStatus, CHAIN_KEY_CONTRACT, transactionHash }} />}
-            {chain === 'btc' && <BitcoinView props={{ setStatus, CHAIN_KEY_CONTRACT }} />}
+            {chain === 'eth' && <EthereumView props={{ setStatus, NFT_CONTRACT, transactionHash }} />}
+            {chain === 'btc' && <BitcoinView props={{ setStatus, NFT_CONTRACT }} />}
           </div>
         }
 

@@ -127,6 +127,37 @@ export class Wallet {
 
   /**
    * Makes a call to a contract
+   * @param {Object} options - the options for the call
+   * @param {string} options.contractId - the contract's account id
+   * @param {string} options.method - the method to call
+   * @param {Object} options.args - the arguments to pass to the method
+   * @param {string} options.gas - the amount of gas to use
+   * @param {string} options.deposit - the amount of yoctoNEAR to deposit
+   * @returns {Promise<Transaction>} - the resulting transaction
+   */
+  callMultipleMethods = async ({ contractId, method, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT }) => {
+    // Sign a transaction with the "FunctionCall" action
+    const selectedWallet = await (await this.selector).wallet();
+    const outcome = await selectedWallet.signAndSendTransaction({
+      receiverId: contractId,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: method,
+            args,
+            gas,
+            deposit,
+          },
+        },
+      ],
+    });
+
+    return providers.getTransactionLastResult(outcome);
+  };
+
+  /**
+   * Makes a call to a contract
    * @param {string} txhash - the transaction hash
    * @returns {Promise<JSON.value>} - the result of the transaction
    */
