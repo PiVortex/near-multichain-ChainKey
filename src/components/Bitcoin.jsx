@@ -8,8 +8,8 @@ import PropTypes from 'prop-types';
 const BTC_NETWORK = 'testnet';
 const BTC = new Bitcoin('https://blockstream.info/testnet/api', BTC_NETWORK);
 
-export function BitcoinView({ props: { setStatus, CHAIN_KEY_CONTRACT } }) {
-  const { wallet, signedAccountId } = useContext(NearContext);
+export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash } }) {
+  const { wallet, signedAccountId, tokenId, setTokenId } = useContext(NearContext);
 
   const [receiver, setReceiver] = useState("tb1q86ec0aszet5r3qt02j77f3dvxruk7tuqdlj0d5");
   const [amount, setAmount] = useState(1000);

@@ -29,14 +29,6 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
     }
   }
 
-  // async function payStorage() {
-  //   try {
-  //     await CK.add_storage_deposit(wallet, NFT_CONTRACT);
-  //   } catch (error) {
-  //     console.error("Failed to add storage_deposit:", error);
-  //   }
-  // }
-
   async function mintNFT() {
     try {
       await CK.mint_NFT(wallet, NFT_CONTRACT);
@@ -62,33 +54,32 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
 
   return (
     <>
-
-          <div className="input-group input-group-sm my-2 mb-4">
-              <span className="text-primary input-group-text" id="NFT">NFT</span>
-              <select className="form-select" aria-describedby="NFT" value={tokenId} onChange={e => setTokenId(e.target.value)} >
-                <option value="" disabled>Select NFT</option>
-                  {NFTs.map((NFT) => (
-                    <option key={NFT} value={NFT}>
-                      {NFT}
-                    </option>
-          ))}
-        </select>
-          </div>
-          
-    <div className="container mt-2">
-      <div className="d-flex justify-content-around mb-3">
-        <button className="btn btn-primary btn-sm me-2" style={{ width: '200px' }} onClick={() => payStorage()}>Pay NFT storage deposit</button>
-        <button className="btn btn-primary btn-sm" style={{ width: '200px' }} onClick={() => mintNFT()}>Mint new NFT</button>
+    
+      <div className="input-group input-group-sm mb-2">
+          <span className="text-primary input-group-text" id="NFT">NFT</span>
+          <select className="form-select" aria-describedby="NFT" value={tokenId} onChange={e => setTokenId(e.target.value)} >
+            <option value="" disabled>Select NFT</option>
+            {NFTs.map((NFT) => (
+              <option key={NFT} value={NFT}>
+                {NFT}
+              </option>
+            ))}
+          </select>
       </div>
-    </div>
-
-    <div className="row mb-3">
-      <label className="col-sm-2 col-form-label col-form-label-sm">Account:</label>
-      <div className="col-sm-10 d-flex align-items-center">
-        <input type="text" className="form-control form-control-sm me-2" value={receiverId} onChange={handleChange} style={{ width: 'auto', flex: '1' }} />
-        <button className="btn btn-primary" onClick={() => sendNFT()} style={{ whiteSpace: 'nowrap' }}>Send NFT</button>
+            
+      <div className="container">
+        <div className="d-flex justify-content-around mb-1">
+          <button className="btn btn-primary btn-sm" style={{ width: '200px' }} onClick={() => mintNFT()}>Mint new NFT</button>
+        </div>
       </div>
-    </div>
+
+      <div className="row mb-5">
+        <label className="col-sm-2 col-form-label col-form-label-sm">Account:</label>
+        <div className="col-sm-10 d-flex align-items-center">
+          <input type="text" className="form-control form-control-sm me-2" value={receiverId} onChange={handleChange} style={{ width: 'auto', flex: '1' }} />
+          <button className="btn btn-primary" onClick={() => sendNFT()} style={{ whiteSpace: 'nowrap' }}>Send NFT</button>
+        </div>
+      </div>
 
     </>
 

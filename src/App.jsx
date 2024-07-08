@@ -56,13 +56,13 @@ function App() {
         {signedAccountId &&
           <div style={{ width: '50%', minWidth: '400px' }}>
             
-            <div className="input-group input-group-sm mt-3 mb-3">
+            <div className="input-group input-group-sm mt-3 mb-4">
               <input className="form-control text-center" type="text" value={`NFT Chain Keys Contract: ${NFT_CONTRACT}`} disabled />
             </div>
-            
-            <NFTView props={{ NFT_CONTRACT }} />
 
-            <div className="input-group input-group-sm my-2 mb-4">
+              <NFTView props={{ NFT_CONTRACT }} />
+
+            <div className="input-group input-group-sm my-2 mb-3">
               <span className="text-primary input-group-text" id="chain">Chain</span>
               <select className="form-select" aria-describedby="chain" value={chain} onChange={e => setChain(e.target.value)} >
                 <option value="eth"> Ξ Ethereum </option>
