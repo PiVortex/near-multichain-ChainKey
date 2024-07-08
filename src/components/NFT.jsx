@@ -29,13 +29,13 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
     }
   }
 
-  async function payStorage() {
-    try {
-      await CK.add_storage_deposit(wallet, NFT_CONTRACT);
-    } catch (error) {
-      console.error("Failed to add storage_deposit:", error);
-    }
-  }
+  // async function payStorage() {
+  //   try {
+  //     await CK.add_storage_deposit(wallet, NFT_CONTRACT);
+  //   } catch (error) {
+  //     console.error("Failed to add storage_deposit:", error);
+  //   }
+  // }
 
   async function mintNFT() {
     try {

@@ -125,39 +125,44 @@ export class Wallet {
     return providers.getTransactionLastResult(outcome);
   };
 
-  /**
-   * Makes a call to a contract
+
+/**
+   * Makes a batch call to a contract
    * @param {Object} options - the options for the call
    * @param {string} options.contractId - the contract's account id
-   * @param {string} options.method - the method to call
-   * @param {Object} options.args - the arguments to pass to the method
-   * @param {string} options.gas - the amount of gas to use
-   * @param {string} options.deposit - the amount of yoctoNEAR to deposit
-   * @returns {Promise<Transaction>} - the resulting transaction
+   * @param {Array.<Method>} options.methods - an array of methods to call
+   * @param {string} options.methods.method - the method to call
+   * @param {Object} options.methods.args - the arguments to pass to the method
+   * @param {string} options.methods.gas - the amount of gas to use
+   * @param {string} options.methods.deposit - the amount of yoctoNEAR to deposit
+   * @returns {Promise<Transaction>} - an array of resulting transactions
    */
-  callMultipleMethods = async ({ contractId, method, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT }) => {
-    // Sign a transaction with the "FunctionCall" action
-    const selectedWallet = await (await this.selector).wallet();
-    const outcome = await selectedWallet.signAndSendTransaction({
-      receiverId: contractId,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName: method,
-            args,
-            gas,
-            deposit,
-          },
-        },
-      ],
-    });
+callMultipleMethods = async ({ contractId, methods }) => {
+  // Sign a transaction with the "FunctionCall" action
+  const selectedWallet = await (await this.selector).wallet();
 
-    return providers.getTransactionLastResult(outcome);
-  };
+  const actions = methods.map(({ method, args = {}, gas = THIRTY_TGAS, deposit = NO_DEPOSIT }) => ({
+    type: 'FunctionCall',
+    params: {
+      methodName: method,
+      args,
+      gas,
+      deposit,
+    },
+  }));
+
+  const outcome = await selectedWallet.signAndSendTransaction({
+    receiverId: contractId,
+    actions,
+  });
+
+  // Gets the last transaction result not both
+  return providers.getTransactionLastResult(outcome);
+};
+
 
   /**
-   * Makes a call to a contract
+   * Fetches transaciton result from RPC
    * @param {string} txhash - the transaction hash
    * @returns {Promise<JSON.value>} - the result of the transaction
    */
@@ -171,6 +176,12 @@ export class Wallet {
     return providers.getTransactionLastResult(transaction);
   };
 
+
+  /**
+   * Fetches transaction args from RPC
+   * @param {string} txhash - the transaction hash
+   * @returns {Promise<JSON.value|null>} - the args of the transaction
+   */
   getTransactionArgs = async (txhash) => {
     const walletSelector = await this.selector;
     const { network } = walletSelector.options;
