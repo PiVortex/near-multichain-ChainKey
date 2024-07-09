@@ -66,6 +66,7 @@ export function EthereumView({ props: { setStatus, NFT_CONTRACT, transactionHash
     } else {
       setEthAddress();
     }
+    
     async function setEthAddress() {
       setStatus('Querying your address and balance');
       setSenderAddress(`Deriving address from path ${derivation_path}...`);

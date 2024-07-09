@@ -9,6 +9,7 @@ export class Bitcoin {
     this.network = network === 'testnet' ? bitcoin.networks.testnet : bitcoin.networks.bitcoin;
   }
 
+  // Change
   async deriveAddress(accountId, derivation_path) {
     const publicKey = await deriveChildPublicKey(najPublicKeyStrToUncompressedHexPoint(), accountId, derivation_path);
     const address = await uncompressedHexPointToBtcAddress(publicKey, this.network);
@@ -23,6 +24,7 @@ export class Bitcoin {
     return balance;
   }
 
+  // Change for web wallet
   async createPayload(sender, receiver, satoshis) {
     const utxos = await this.fetchUTXOs(sender);
     const feeRate = await this.fetchFeeRate();
@@ -77,6 +79,7 @@ export class Bitcoin {
     return { psbt, utxos };
   }
 
+  // Change
   async requestSignatureToMPC(wallet, contractId, path, btcPayload, publicKey) {
     const { psbt, utxos } = btcPayload;
 

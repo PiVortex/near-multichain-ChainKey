@@ -23,17 +23,56 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
   const derivationPath = useDebounce(derivation, 500);
 
   useEffect(() => {
+    // Only called if using web wallet
+    if (transactionHash != null && sessionStorage.getItem('chain') == "BTC") {
+      resetParams();
+      handleCallback();
+    }
+  }, [transactionHash]);
+
+  // Reset params to before asking for signature if using web wallet
+  async function resetParams() {
+    try {
+    const args = await wallet.getTransactionArgs(transactionHash);
+    setTokenId(args.token_id);
+    setDerivation(args.path);
+    setAmount(sessionStorage.getItem('amount'));
+    } catch (e) {
+      setStatus(`❌ Error: ${e.message}`);
+    }
+  }
+
+    // Handles the rest of the signature method if using web wallet
+  async function handleCallback() {
+    try {
+      setLoading(true);
+      const signedTransaction = await BTC.requestSignatureFromNFTCallback(wallet, transactionHash);
+      setSignedTransaction(signedTransaction);
+      setStatus(`✅ Signed payload ready to be relayed to the Ethereum network`);
+      setStep('relay');
+      setLoading(false);
+    } catch (e) {
+      setStatus(`❌ Error: ${e.message}`);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     setSenderAddress('Waiting for you to stop typing...')
   }, [derivation]);
 
   useEffect(() => {
-    setBtcAddress()
+    if (tokenId == '') {
+      setSenderAddress('Select NFT');
+    } else {
+      setBtcAddress()
+    }
 
     async function setBtcAddress() {
       setStatus('Querying your address and balance');
       setSenderAddress(`Deriving address from path ${derivationPath}...`);
 
-      const { address, publicKey } = await BTC.deriveAddress(signedAccountId, derivationPath);
+      const { address, publicKey } = await BTC.deriveAddress(NFT_CONTRACT, derivationPath, tokenId);
       setSenderAddress(address);
       setSenderPK(publicKey);
 
@@ -48,7 +87,7 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
 
     setStatus('🕒 Asking MPC to sign the transaction, this might take a while...');
     try {
-      const signedTransaction = await BTC.requestSignatureToMPC(wallet, MPC_CONTRACT, derivationPath, payload, senderPK);
+      const signedTransaction = await BTC.requestSignatureToMPC(wallet, MPC_CONTRACT, derivationPath, payload, senderPK); // Change this method
       setStatus('✅ Signed payload ready to be relayed to the Bitcoin network');
       setSignedTransaction(signedTransaction);
       setStep('relay');
@@ -75,6 +114,7 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
 
     setStep('request');
     setLoading(false);
+    window.history.pushState({}, '', window.location.origin);
   }
 
   const UIChainSignature = async () => {
@@ -85,7 +125,7 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
 
   return (
     <>
-      <div className="row my-3">
+      <div className="row mb-3">
         <label className="col-sm-2 col-form-label col-form-label-sm">Path:</label>
         <div className="col-sm-10">
           <input type="text" className="form-control form-control-sm" value={derivation} onChange={(e) => setDerivation(e.target.value)} disabled={loading} />
@@ -106,7 +146,7 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
         </div>
       </div>
 
-      <div className="text-center mt-3">
+      <div className="text-center">
         {step === 'request' && <button className="btn btn-primary text-center" onClick={UIChainSignature} disabled={loading}> Request Signature </button>}
         {step === 'relay' && <button className="btn btn-success text-center" onClick={relayTransaction} disabled={loading}> Relay Transaction </button>}
       </div>
