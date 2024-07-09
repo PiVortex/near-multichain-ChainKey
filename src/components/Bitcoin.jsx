@@ -79,7 +79,7 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
       const balance = await BTC.getBalance(address);
       setStatus(`Your Bitcoin address is: ${address}, balance: ${balance} satoshi`);
     }
-  }, [signedAccountId, derivationPath]);
+  }, [signedAccountId, derivationPath, tokenId]);
 
   async function chainSignature() {
     setStatus('🏗️ Creating transaction');
@@ -87,7 +87,8 @@ export function BitcoinView({ props: { setStatus, NFT_CONTRACT, transactionHash 
 
     setStatus('🕒 Asking MPC to sign the transaction, this might take a while...');
     try {
-      const signedTransaction = await BTC.requestSignatureToMPC(wallet, MPC_CONTRACT, derivationPath, payload, senderPK); // Change this method
+      const signedTransaction = await BTC.requestSignatureFromNFT(wallet, tokenId, NFT_CONTRACT, derivationPath, payload, senderPK);
+      console.log(signedTransaction)
       setStatus('✅ Signed payload ready to be relayed to the Bitcoin network');
       setSignedTransaction(signedTransaction);
       setStep('relay');

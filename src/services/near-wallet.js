@@ -162,7 +162,7 @@ callMultipleMethods = async ({ contractId, methods }) => {
 
 
   /**
-   * Fetches transaction result from the network
+   * Retrieves transaction result from the network
    * @param {string} txhash - the transaction hash
    * @returns {Promise<JSON.value>} - the result of the transaction
    */
@@ -177,7 +177,7 @@ callMultipleMethods = async ({ contractId, methods }) => {
 
 
   /**
-   * Fetches transaction args from RPC
+   * Retrieves transaction args from RPC
    * @param {string} txhash - the transaction hash
    * @returns {Promise<JSON.value|null>} - the args of the transaction
    */
@@ -186,7 +186,6 @@ callMultipleMethods = async ({ contractId, methods }) => {
     const { network } = walletSelector.options;
     const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
 
-    // Retrieve transaction args from the network
     const transaction = await provider.txStatus(txhash, 'unnused');
     if (transaction.transaction) {
       const action = transaction.transaction.actions[0];

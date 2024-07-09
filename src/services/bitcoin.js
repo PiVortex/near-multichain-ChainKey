@@ -9,9 +9,9 @@ export class Bitcoin {
     this.network = network === 'testnet' ? bitcoin.networks.testnet : bitcoin.networks.bitcoin;
   }
 
-  // Change
-  async deriveAddress(accountId, derivation_path) {
-    const publicKey = await deriveChildPublicKey(najPublicKeyStrToUncompressedHexPoint(), accountId, derivation_path);
+  async deriveAddress(accountId, derivation_path, tokenId) {
+    const path = `${tokenId},${derivation_path}`;
+    const publicKey = await deriveChildPublicKey(najPublicKeyStrToUncompressedHexPoint(), accountId, path);
     const address = await uncompressedHexPointToBtcAddress(publicKey, this.network);
     return { publicKey: Buffer.from(publicKey, 'hex'), address };
   }
@@ -80,32 +80,39 @@ export class Bitcoin {
   }
 
   // Change
-  async requestSignatureToMPC(wallet, contractId, path, btcPayload, publicKey) {
+  async requestSignatureFromNFT(wallet, tokenId, contractId, path, btcPayload, publicKey) {
     const { psbt, utxos } = btcPayload;
 
     // Bitcoin needs to sign multiple utxos, so we need to pass a signer function
     const sign = async (tx) => {
       const payload = Array.from(ethers.getBytes(tx)).reverse();
-      const [big_r, big_s] = await wallet.callMethod({ contractId, method: 'sign', args: { payload, path, key_version: 0 }, gas: '250000000000000' });
-      return this.reconstructSignature(big_r, big_s);
+      const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
+      console.log(result)
+      return this.reconstructSignature(result);
     }
 
+    // There are multiple UTXOs I want to batch transaction all the signs at once so there is one wallet pop up but its used in psbt.signInputAsync
+    console.log(utxos)
     await Promise.all(
       utxos.map(async (_, index) => {
         await psbt.signInputAsync(index, { publicKey, sign });
       })
     );
 
-    psbt.finalizeAllInputs();
+    console.log("good1")
 
+    psbt.finalizeAllInputs();
+    console.log("good2")
     return psbt.extractTransaction().toHex()
   }
 
-  reconstructSignature(big_r, big_s) {
-    const r = big_r.slice(2).padStart(64, "0");
-    const s = big_s.padStart(64, "0");
+  reconstructSignature(result) {
+    // const r = big_r.slice(2).padStart(64, "0");
+    // const s = big_s.padStart(64, "0");
 
-    const rawSignature = Buffer.from(r + s, "hex");
+    const rawSignature = Buffer.from(result.substring(0, 128), 'hex');
+
+    // const rawSignature = Buffer.from(r + s, "hex");
 
     if (rawSignature.length !== 64) {
       throw new Error("Invalid signature length.");

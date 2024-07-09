@@ -39,18 +39,6 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
     getNFT();
   }
 
-  async function sendNFT() {
-    try {
-      await CK.send_NFT(wallet, NFT_CONTRACT, tokenId, receiverId);
-    } catch (error) {
-      console.error("Failed to send NFT:", error);
-    }
-
-    getNFT();
-    setTokenId('');
-    setReceiverId('');
-  }
-
 
   return (
     <>
@@ -67,18 +55,8 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
           </select>
       </div>
             
-      <div className="container">
-        <div className="d-flex justify-content-around mb-1">
+      <div className="container mb-4">
           <button className="btn btn-primary btn-sm" style={{ width: '200px' }} onClick={() => mintNFT()}>Mint new NFT</button>
-        </div>
-      </div>
-
-      <div className="row mb-5">
-        <label className="col-sm-2 col-form-label col-form-label-sm">Account:</label>
-        <div className="col-sm-10 d-flex align-items-center">
-          <input type="text" className="form-control form-control-sm me-2" value={receiverId} onChange={handleChange} style={{ width: 'auto', flex: '1' }} />
-          <button className="btn btn-primary" onClick={() => sendNFT()} style={{ whiteSpace: 'nowrap' }}>Send NFT</button>
-        </div>
       </div>
 
     </>
