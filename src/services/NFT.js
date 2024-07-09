@@ -15,7 +15,7 @@ export class NFTClass {
     async mint_NFT(wallet, contractId) {
         const storageMethod = {
             method: 'storage_deposit',
-            deposit: '20000000000000000000000'
+            deposit: '20000000000000000000000' // Note deposit amount can be optimised since initial mint requires more deposit than subsequent mints
         };
         const mintMethod = {
             method: 'mint'
@@ -26,15 +26,6 @@ export class NFTClass {
             contractId,
             methods
         })
-    }
-
-    async send_NFT(wallet, contractId, token_id, receiver_id) {
-        await wallet.callMethod({
-            contractId,
-            method: 'nft_transfer',
-            args: { token_id, receiver_id },
-            deposit: '1'
-        });
     }
 
 }
