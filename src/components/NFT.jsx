@@ -11,10 +11,10 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
   const [NFTs, setNFTs] = useState([]);
 
   useEffect(() => {
-    getNFT();
+    getNFTs();
   }, []);
 
-  async function getNFT() {
+  async function getNFTs() {
     try {
       const NFTList = await CK.get_NFTs(wallet, NFT_CONTRACT, signedAccountId);
       setNFTs(NFTList);
@@ -30,7 +30,7 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
       console.error("Failed to mint NFT:", error);
     }
 
-    getNFT();
+    getNFTs();
   }
 
 

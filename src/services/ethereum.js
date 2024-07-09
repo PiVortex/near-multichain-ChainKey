@@ -48,7 +48,7 @@ export class Ethereum {
       chain: this.chain_id,
     };
 
-    // Store data needed if using web wallet 
+    // Store data required if using web wallet 
     sessionStorage.setItem('sender', sender);
     sessionStorage.setItem('nonce', nonce);
     sessionStorage.setItem('maxFeePerGas', maxFeePerGas);
@@ -63,11 +63,10 @@ export class Ethereum {
   }
 
   async requestSignatureFromNFT(wallet, tokenId, contractId, path, ethPayload, transaction, sender) {
-    // Ask the NFT Chain Key contract to sign the payload
     const payload = Array.from(ethPayload.reverse());
-
     sessionStorage.setItem('chain', "ETH");
 
+    // Ask the NFT Chain Key contract to sign the payload
     const result = await wallet.callMethod({ contractId, method: 'ckt_sign_hash', args: { token_id: tokenId, path, payload }, gas: '300000000000000', deposit: '1' });
     return await this.reconstructSignature(result, transaction, sender);
   }

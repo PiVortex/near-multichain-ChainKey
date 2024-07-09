@@ -32,7 +32,7 @@ function App() {
   
 
   useEffect(() => {
-    // Get transaction hash from when using web wallet
+    // Get transaction hash from URL when using web wallet
     const getTransactionHashFromUrl = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const hash = urlParams.get('transactionHashes');
