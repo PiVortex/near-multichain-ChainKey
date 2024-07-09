@@ -9,16 +9,10 @@ export function NFTView({ props: { NFT_CONTRACT } }) {
   const CK = new NFTClass();
 
   const [NFTs, setNFTs] = useState([]);
-  const [receiverId, setReceiverId] = useState('');
-
 
   useEffect(() => {
     getNFT();
   }, []);
-
-  const handleChange = (event) => {
-    setReceiverId(event.target.value);
-  };
 
   async function getNFT() {
     try {
